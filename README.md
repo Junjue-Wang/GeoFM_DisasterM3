@@ -183,8 +183,8 @@ per-architecture backbone. Config example: `training/configs/geofm/stage1_trains
 
 **Stage 2 — pseudo-label distillation on TRAIN+TEST mix.** A fresh model is trained **from scratch**
 on a mixture of the train tiles and the 946 **test** tiles,
-where the test tiles are **pseudo-labelled by the stage-1 model predictions** (fused across models/
-sources into the teacher masks below). `pseudo_oversample=5`, `augment=False`, full-256 crop,
+where the test tiles are **pseudo-labelled by the stage-1 model predictions** (fused across models into 
+the teacher masks below). `pseudo_oversample=5`, `augment=False`, full-256 crop,
 `weight_decay=0`, near-constant LR 1e-3, soft labels. `train_subsample_n` sets how much real train GT
 stays in the mix; the shipped final configs use `train_subsample_n=0` (the test-pseudo extreme of the
 mix) for maximal test-time calibration. Configs: `training/configs/geofm/*_overfit_*10k.py`.
