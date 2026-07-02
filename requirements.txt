@@ -1,0 +1,41 @@
+# Environment used to produce the LB 0.5463 result (exact versions, python 3.12.11).
+#
+# `ever` is NOT on PyPI (it is a local library) — it ships in this package as a
+# prebuilt wheel under vendor/. Install in TWO steps:
+#
+#   conda create -n geofm python=3.12 -y && conda activate geofm
+#   pip install -r requirements.txt                                  # (1) PyPI deps below
+#   pip install --no-index --no-deps vendor/ever-2.0.0-py3-none-any.whl   # (2) offline ever
+#
+# For a fully offline reviewer, also pre-download the wheels below into a local
+# dir and add `--no-index --find-links <dir>` to step (1). See vendor/README.md.
+#
+# Path A (reproduce_from_soft.sh / make_sub.py) needs ONLY numpy.
+# Path B (run_full_inference.sh) needs everything below + ever + 1 CUDA GPU.
+#
+# The result used the CUDA 12.6 torch build. To get the exact +cu126 wheels, install with:
+#   pip install -r requirements.txt --extra-index-url https://download.pytorch.org/whl/cu126
+# (adjust cu126 -> your GPU's CUDA. Plain `pip install -r requirements.txt` pulls the default
+#  PyPI torch wheel, which may not match the CUDA build used here.)
+
+# --- direct imports of the shipped inference code (code/) ---
+numpy==2.3.4
+torch==2.8.0          # exact build torch==2.8.0+cu126 (see --extra-index-url note above)
+torchvision==0.23.0   # exact build 0.23.0+cu126; used by module/networks.py
+timm==1.0.22          # backbone layers (hrnet/convnext/mbconv token-fusion)
+Pillow==11.0.0
+rasterio==1.5.0       # reads the test embedding GeoTIFFs
+tqdm==4.67.1
+
+# --- ever's runtime dependencies (PyPI) — needed because ever is installed --no-deps from the wheel ---
+albumentations==2.0.8
+scikit-image==0.25.2
+scipy==1.16.2
+matplotlib==3.10.6
+pandas==2.3.3
+tifffile==2025.9.30
+prettytable==3.16.0
+tensorboard==2.20.0
+
+# --- ever itself: install from the bundled wheel (NOT PyPI) ---
+#   pip install --no-index --no-deps vendor/ever-2.0.0-py3-none-any.whl
