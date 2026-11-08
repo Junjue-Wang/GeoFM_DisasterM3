@@ -1,5 +1,45 @@
-# DisasterM3 Solution for 'Reaching new heights with GeoFM'
+# 2nd Place Solution — GeoAI Challenge: Reaching New Heights with GeoFM
 
+**GRAFT-Geo: GeoFM Resolution-Adaptive Fusion with Transductive Training** · Team **DisasterM3**
+
+This is the 2nd-place solution to the *Reaching New Heights with GeoFM* GeoAI Challenge, organised by
+ESA Φ-lab and ITU (AI for Good). The task is to turn pre-computed geospatial foundation-model (GeoFM)
+embeddings (AlphaEarth, Tessera, TerraMind S1/S2 and THOR S1/S2) into 4-channel 10 m maps: building,
+vegetation and water fractions plus nDSM height, for 256 × 256 tiles.
+
+| Rank | Public LB | Private LB |
+|:---:|:---:|:---:|
+| **2nd** | 0.5463 | 0.5499 |
+
+**Team DisasterM3:** Junjue Wang (The University of Tokyo), Weihao Xuan (The University of Tokyo & RIKEN AIP),
+Pengyu Dai (The University of Tokyo & RIKEN AIP), Jingjun Yi (University of Amsterdam),
+Naoto Yokoya (The University of Tokyo & RIKEN AIP)
+
+| Resource | Link |
+|---|---|
+| Model weights + reproduction artifacts | [Hugging Face: `Kingdrone-Junjue/GeoFM`](https://huggingface.co/Kingdrone-Junjue/GeoFM) |
+| Original code repository | [`Junjue-Wang/GeoFM_DisasterM3`](https://github.com/Junjue-Wang/GeoFM_DisasterM3) |
+
+## Method at a glance
+
+![GRAFT-Geo framework](docs/graft_geo_framework.png)
+
+- **Resolution-aware multi-source adapter.** Each of the six embedding sources is z-normalised with its own
+  training statistics (±10σ clipping, NaN/Inf sanitation) and projected to a shared 64-d space. The dense
+  10 m embeddings (AlphaEarth 64-ch, Tessera 128-ch) feed the stem at full resolution; the coarse 16 × 16
+  tokens (TerraMind / THOR, 768-ch) are fused deep in the encoder at 1/16 scale instead of being naively
+  upsampled.
+- **Task-decoupled prediction.** A shared encoder–decoder (three backbones: Lite-HRNet, ConvNeXt, MBConv)
+  predicts all four channels with a composite loss that balances regression, structure, boundary, class
+  imbalance and height terms (`L = 1.0·MAE + 0.5·SSIM + 0.5·Grad + 2.0·Tversky + 2.0·Height`); the
+  per-family stage-2 losses are listed in §5.
+- **Transductive two-stage training.** Stage-1 models trained on the labelled set produce soft teacher masks
+  on the 946 test tiles; stage-2 students are retrained on these pseudo-labels, and the final submission
+  ensembles diverse stage-2 models (§1, §5).
+
+![Training strategy and results](docs/training_strategy_results.png)
+
+---
 
 Final submission: **`final_submission/0627_REC_5463_b5316T50_jointV8864T15_jointW6302T375_hb1.8336_hv2.7824.zip`**
 Leaderboard score: **0.5463 (public)**, **0.5499 (private)**.
@@ -26,8 +66,9 @@ submission is reproducible from weights — nothing is hidden inside a precomput
 ## 2. Code Layout
 
 ```
-FINAL_Code/
+./
 ├── README.md
+├── docs/                      # figures used in this README
 ├── reproduce_from_soft.sh     # ← FAST path: rebuild+verify submission, no GPU, ~1 min
 ├── run_full_inference.sh      # ← FULL path: run all 7 models from weights, then assemble
 ├── make_sub.py                # threshold soft_master → zip (used by fast path)

@@ -1,0 +1,31 @@
+{
+  "_comment": "The 7 models behind the LB 0.5463 submission. dir is relative to models/. All share input dims: in-channels 192, dense 64 128, token 768x4, dequantize_ae False, token_upsample False, single-view (num-views 1). Only model_type + ckpt + best/last vary. Each model outputs 4 channels; only 'channel' is used per role.",
+  "ch0_building": {
+    "role": "building", "channel": 0, "reduce": "mean", "threshold": 0.50,
+    "models": [
+      {"dir": "ch0_building_ens3/hrnet",    "model_type": "adapter_fusion_lite_hrnet_token_fusion",          "ckpt": "model-last.pth"},
+      {"dir": "ch0_building_ens3/convnext", "model_type": "adapter_fusion_lite_hrnet_convnext_token_fusion", "ckpt": "model-best.pth"},
+      {"dir": "ch0_building_ens3/mbconv",   "model_type": "adapter_fusion_lite_hrnet_mbconv_token_fusion",   "ckpt": "model-best.pth"}
+    ]
+  },
+  "ch1_veg": {
+    "role": "veg", "channel": 1, "reduce": "single", "threshold": 0.15,
+    "models": [
+      {"dir": "ch1ch2_vegwater_joint/convnext", "model_type": "adapter_fusion_lite_hrnet_convnext_token_fusion", "ckpt": "model-last.pth"}
+    ]
+  },
+  "ch2_water": {
+    "role": "water", "channel": 2, "reduce": "single", "threshold": 0.375,
+    "models": [
+      {"dir": "ch1ch2_vegwater_joint/convnext", "model_type": "adapter_fusion_lite_hrnet_convnext_token_fusion", "ckpt": "model-last.pth"}
+    ]
+  },
+  "ch3_height": {
+    "role": "height", "channel": 3, "reduce": "mean_clip100", "threshold": null,
+    "models": [
+      {"dir": "ch3_height_ens3/hrnet",    "model_type": "adapter_fusion_lite_hrnet_token_fusion",          "ckpt": "model-last.pth"},
+      {"dir": "ch3_height_ens3/convnext", "model_type": "adapter_fusion_lite_hrnet_convnext_token_fusion", "ckpt": "model-last.pth"},
+      {"dir": "ch3_height_ens3/mbconv",   "model_type": "adapter_fusion_lite_hrnet_mbconv_token_fusion",   "ckpt": "model-last.pth"}
+    ]
+  }
+}
